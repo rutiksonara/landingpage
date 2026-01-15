@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { ThemeProvider } from './hooks/useTheme';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Features from './components/Features';
@@ -8,7 +7,7 @@ import Footer from './components/Footer';
 import AuthModal from './components/AuthModal';
 import './index.css';
 
-function AppContent() {
+export default function App() {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
 
   const handleAuthClick = () => setIsAuthOpen(true);
@@ -29,13 +28,5 @@ function AppContent() {
       <Footer />
       <AuthModal isOpen={isAuthOpen} onClose={handleAuthClose} />
     </div>
-  );
-}
-
-export default function App() {
-  return (
-    <ThemeProvider>
-      <AppContent />
-    </ThemeProvider>
   );
 }

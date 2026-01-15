@@ -1,13 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Sun, Moon, Menu, X } from 'lucide-react';
-import { useTheme } from '../hooks/useTheme';
+import { Menu, X } from 'lucide-react';
 
 interface HeaderProps {
   onAuthClick: () => void;
 }
 
 export default function Header({ onAuthClick }: HeaderProps) {
-  const { theme, toggleTheme } = useTheme();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -56,13 +54,6 @@ export default function Header({ onAuthClick }: HeaderProps) {
         </nav>
 
         <div className="flex items-center gap-2">
-          <button
-            onClick={toggleTheme}
-            className="flex items-center justify-center w-9 h-9 rounded-md text-[var(--color-text-secondary)] transition-all hover:bg-[var(--color-bg-tertiary)] hover:text-[var(--color-text-primary)]"
-            aria-label="Toggle theme"
-          >
-            {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-          </button>
           <button onClick={onAuthClick} className="btn btn-primary py-1 px-4 text-[13px] max-md:hidden">
             Get Started
           </button>
