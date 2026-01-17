@@ -1,5 +1,6 @@
 import { useState, forwardRef, useImperativeHandle, useRef } from 'react';
-import { ArrowRight, Play, Loader2, ChevronLeft } from 'lucide-react';
+import { ArrowRight, Loader2, ChevronLeft } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface HeroProps {
   onDemoClick: () => void;
@@ -9,12 +10,13 @@ export interface HeroRef {
   focusEmailInput: () => void;
 }
 
-const Hero = forwardRef<HeroRef, HeroProps>(({ onDemoClick }, ref) => {
+const Hero = forwardRef<HeroRef, HeroProps>(({ onDemoClick: _onDemoClick }, ref) => {
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
   const [step, setStep] = useState<'email' | 'otp'>('email');
   const [isLoading, setIsLoading] = useState(false);
   const emailInputRef = useRef<HTMLInputElement>(null);
+  const otpInputRef = useRef<HTMLInputElement>(null);
 
   // Expose method to focus email input from parent
   useImperativeHandle(ref, () => ({
@@ -37,6 +39,10 @@ const Hero = forwardRef<HeroRef, HeroProps>(({ onDemoClick }, ref) => {
     await new Promise(resolve => setTimeout(resolve, 800));
     setIsLoading(false);
     setStep('otp');
+    // Focus OTP input after transition
+    setTimeout(() => {
+      otpInputRef.current?.focus();
+    }, 300);
   };
 
   const handleOtpSubmit = async (e: React.FormEvent) => {
@@ -54,6 +60,31 @@ const Hero = forwardRef<HeroRef, HeroProps>(({ onDemoClick }, ref) => {
   const handleBack = () => {
     setStep('email');
     setOtp('');
+    setTimeout(() => {
+      emailInputRef.current?.focus();
+    }, 300);
+  };
+
+  // Animation variants for smooth morph transitions
+  const containerVariants = {
+    hidden: { opacity: 0, y: 20, scale: 0.95 },
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      scale: 1,
+      transition: { 
+        type: 'spring',
+        stiffness: 300,
+        damping: 30,
+        duration: 0.4 
+      }
+    },
+    exit: { 
+      opacity: 0, 
+      y: -20, 
+      scale: 0.95,
+      transition: { duration: 0.2 }
+    }
   };
 
   return (
@@ -74,97 +105,107 @@ const Hero = forwardRef<HeroRef, HeroProps>(({ onDemoClick }, ref) => {
             accelerate your path from concept to production.
           </p>
 
-          <div className="flex flex-wrap gap-3 mb-16 items-start">
-            {/* Email/OTP Form Container */}
-            <div 
-              id="signup-form"
-              className="relative overflow-hidden"
-              style={{ minWidth: '320px' }}
-            >
-              {/* Email Step */}
-              <form 
-                onSubmit={handleEmailSubmit}
-                className={`flex gap-2 transition-all duration-300 ease-out ${
-                  step === 'email' 
-                    ? 'translate-x-0 opacity-100' 
-                    : '-translate-x-full opacity-0 absolute inset-0 pointer-events-none'
-                }`}
-              >
-                <input
-                  ref={emailInputRef}
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email"
-                  className="flex-1 px-4 py-2.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all"
-                  required
-                />
-                <button 
-                  type="submit" 
-                  disabled={isLoading || !email.trim()}
-                  className="btn btn-primary py-2.5 px-5 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          {/* Email/OTP Form Container with AnimatePresence for morph transitions */}
+          <div 
+            id="signup-form"
+            className="mb-16"
+            style={{ minHeight: '80px' }}
+          >
+            <AnimatePresence mode="wait">
+              {step === 'email' ? (
+                <motion.form 
+                  key="email-form"
+                  onSubmit={handleEmailSubmit}
+                  variants={containerVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  className="relative"
                 >
-                  {isLoading ? (
-                    <Loader2 size={16} className="animate-spin" />
-                  ) : (
-                    <>
-                      Next
-                      <ArrowRight size={16} />
-                    </>
-                  )}
-                </button>
-              </form>
-
-              {/* OTP Step */}
-              <form 
-                onSubmit={handleOtpSubmit}
-                className={`transition-all duration-300 ease-out ${
-                  step === 'otp' 
-                    ? 'translate-x-0 opacity-100' 
-                    : 'translate-x-full opacity-0 absolute inset-0 pointer-events-none'
-                }`}
-              >
-                <p className="text-sm text-[var(--color-text-muted)] mb-3">
-                  We sent a code to <span className="text-[var(--color-text-primary)] font-medium">{email}</span>
-                </p>
-                <div className="flex gap-2 mb-2">
-                  <input
-                    type="text"
-                    value={otp}
-                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                    placeholder="Enter 6-digit OTP"
-                    className="flex-1 px-4 py-2.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all tracking-widest text-center font-mono"
-                    maxLength={6}
-                    required
-                  />
-                  <button 
-                    type="submit" 
-                    disabled={isLoading || otp.length !== 6}
-                    className="btn btn-primary py-2.5 px-5 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  <div className="relative flex items-center max-w-[400px]">
+                    <input
+                      ref={emailInputRef}
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="Enter your email"
+                      className="w-full px-5 py-3.5 pr-14 rounded-full border border-[var(--color-border)] bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all text-[15px]"
+                      required
+                    />
+                    <motion.button 
+                      type="submit" 
+                      disabled={isLoading || !email.trim()}
+                      className="absolute right-2 w-10 h-10 flex items-center justify-center rounded-full bg-transparent text-[var(--color-accent)] hover:bg-[var(--color-accent)]/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200"
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      {isLoading ? (
+                        <Loader2 size={20} className="animate-spin" />
+                      ) : (
+                        <ArrowRight size={22} strokeWidth={2.5} />
+                      )}
+                    </motion.button>
+                  </div>
+                </motion.form>
+              ) : (
+                <motion.form 
+                  key="otp-form"
+                  onSubmit={handleOtpSubmit}
+                  variants={containerVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                >
+                  <motion.p 
+                    className="text-sm text-[var(--color-text-muted)] mb-3"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.1 }}
                   >
-                    {isLoading ? (
-                      <Loader2 size={16} className="animate-spin" />
-                    ) : (
-                      'Verify'
-                    )}
-                  </button>
-                </div>
-                <button 
-                  type="button"
-                  onClick={handleBack}
-                  className="flex items-center gap-1 text-sm text-[var(--color-text-muted)] hover:text-[var(--color-accent)] transition-colors bg-transparent border-none cursor-pointer"
-                >
-                  <ChevronLeft size={14} />
-                  Back
-                </button>
-              </form>
-            </div>
+                    We sent a code to <span className="text-[var(--color-text-primary)] font-medium">{email}</span>
+                  </motion.p>
+                  
+                  <div className="relative flex items-center max-w-[400px]">
+                    <input
+                      ref={otpInputRef}
+                      type="text"
+                      value={otp}
+                      onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                      placeholder="Enter 6-digit OTP"
+                      className="w-full px-5 py-3.5 pr-14 rounded-full border border-[var(--color-border)] bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all tracking-[0.3em] text-center font-mono text-[15px]"
+                      maxLength={6}
+                      required
+                    />
+                    <motion.button 
+                      type="submit" 
+                      disabled={isLoading || otp.length !== 6}
+                      className="absolute right-2 w-10 h-10 flex items-center justify-center rounded-full bg-transparent text-[var(--color-accent)] hover:bg-[var(--color-accent)]/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200"
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      {isLoading ? (
+                        <Loader2 size={20} className="animate-spin" />
+                      ) : (
+                        <ArrowRight size={22} strokeWidth={2.5} />
+                      )}
+                    </motion.button>
+                  </div>
 
-            {/* Watch Demo Button */}
-            <button onClick={onDemoClick} className="btn btn-secondary py-2.5 px-6">
-              <Play size={16} />
-              Watch Demo
-            </button>
+                  <motion.button 
+                    type="button"
+                    onClick={handleBack}
+                    className="flex items-center gap-1 mt-3 text-sm text-[var(--color-text-muted)] hover:text-[var(--color-accent)] transition-colors bg-transparent border-none cursor-pointer"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.2 }}
+                    whileHover={{ x: -3 }}
+                  >
+                    <ChevronLeft size={14} />
+                    Back
+                  </motion.button>
+                </motion.form>
+              )}
+            </AnimatePresence>
           </div>
 
           <div className="flex flex-wrap items-center gap-8 pt-8 border-t border-[var(--color-border)] max-sm:gap-6">

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Menu, X, ChevronDown, Sparkles, Move3D, Users, FileOutput, MessageSquare, Globe, Zap } from 'lucide-react';
+import { motion, AnimatePresence, MotionConfig } from 'framer-motion';
 
 interface HeaderProps {
   onAuthClick: () => void;
@@ -115,84 +116,139 @@ export default function Header({ onAuthClick }: HeaderProps) {
             ? 'max-md:translate-y-0 max-md:opacity-100 max-md:pointer-events-auto'
             : 'max-md:-translate-y-full max-md:opacity-0 max-md:pointer-events-none'}
         `}>
-          {/* Features Dropdown */}
-          <div 
-            className="relative" 
-            ref={dropdownRef}
-            onMouseEnter={() => setIsFeaturesOpen(true)}
-            onMouseLeave={() => setIsFeaturesOpen(false)}
-          >
-            <button
-              className={`${getNavButtonClass('features')} flex items-center gap-1`}
+          {/* Features Dropdown with Framer Motion */}
+          <MotionConfig transition={{ duration: 0.7, type: "spring", bounce: 0.2 }}>
+            <div 
+              className="relative" 
+              ref={dropdownRef}
+              onMouseEnter={() => setIsFeaturesOpen(true)}
+              onMouseLeave={() => setIsFeaturesOpen(false)}
             >
-              Features
-              <ChevronDown 
-                size={14} 
-                className={`transition-transform duration-200 ${isFeaturesOpen ? 'rotate-180' : ''}`}
-              />
-              {activeSection === 'features' && (
-                <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-[var(--color-accent)] rounded-full" />
-              )}
-            </button>
-
-            {/* Dropdown Menu - Enhanced Grid Layout */}
-            <div className={`
-              absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[520px]
-              bg-[var(--color-bg-elevated)] backdrop-blur-xl
-              border border-[var(--color-border)] rounded-2xl
-              shadow-2xl shadow-black/30
-              transition-all duration-150 origin-top
-              max-md:relative max-md:left-0 max-md:translate-x-0 max-md:w-full max-md:mt-2
-              ${isFeaturesOpen 
-                ? 'opacity-100 scale-100 pointer-events-auto visible' 
-                : 'opacity-0 scale-95 pointer-events-none invisible'}
-            `}>
-              {/* Header */}
-              <div className="px-5 py-3 border-b border-[var(--color-border)]">
-                <span className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Features</span>
-              </div>
-              
-              {/* Grid Layout */}
-              <div className="p-3 grid grid-cols-2 gap-1 max-md:grid-cols-1">
-                {featureItems.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => scrollToFeatureItem(item.id)}
-                    className="flex items-start gap-3 p-3 rounded-xl text-left transition-all duration-150 hover:bg-[var(--color-bg-tertiary)] bg-transparent border-none cursor-pointer group"
-                  >
-                    <div 
-                      className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all duration-150 group-hover:scale-110 group-hover:shadow-lg"
-                      style={{ 
-                        backgroundColor: `${item.color}15`, 
-                        color: item.color,
-                        boxShadow: `0 0 0 1px ${item.color}30`
-                      }}
-                    >
-                      <item.icon size={18} />
-                    </div>
-                    <div className="flex flex-col gap-0.5 min-w-0">
-                      <span className="text-sm font-medium text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] transition-colors truncate">
-                        {item.title}
-                      </span>
-                      <span className="text-xs text-[var(--color-text-muted)] leading-relaxed line-clamp-2">
-                        Explore this feature
-                      </span>
-                    </div>
-                  </button>
-                ))}
-              </div>
-              
-              {/* Footer */}
-              <div className="px-5 py-3 border-t border-[var(--color-border)] bg-[var(--color-bg-tertiary)]/50 rounded-b-2xl">
-                <button 
-                  onClick={() => scrollToSection('features')}
-                  className="text-xs font-medium text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] transition-colors bg-transparent border-none cursor-pointer"
+              <button
+                className={`${getNavButtonClass('features')} flex items-center gap-1`}
+              >
+                <span>Features</span>
+                <motion.div
+                  animate={{ rotate: isFeaturesOpen ? 180 : 0 }}
+                  transition={{ duration: 0.3 }}
                 >
-                  View all features →
-                </button>
-              </div>
+                  <ChevronDown size={14} />
+                </motion.div>
+                {activeSection === 'features' && (
+                  <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-[var(--color-accent)] rounded-full" />
+                )}
+              </button>
+
+              {/* Animated Dropdown Menu */}
+              <AnimatePresence mode="popLayout">
+                {isFeaturesOpen && (
+                  <motion.div 
+                    className="absolute top-full left-0 mt-2 w-[520px] bg-[var(--color-bg-elevated)] backdrop-blur-xl border border-[var(--color-border)] rounded-2xl shadow-2xl shadow-black/30 overflow-hidden max-md:relative max-md:left-0 max-md:w-full max-md:mt-2"
+                    style={{ x: 'calc(-50% + 40px)' }}
+                    initial={{ opacity: 0, scale: 0.9, y: -10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.9, y: -10 }}
+                  >
+                    {/* Header */}
+                    <motion.div 
+                      className="px-5 py-3 border-b border-[var(--color-border)]"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.1 }}
+                    >
+                      <motion.span 
+                        layoutId="features-text"
+                        className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]"
+                      >
+                        Features
+                      </motion.span>
+                    </motion.div>
+                    
+                    {/* Grid Layout with staggered icon animations */}
+                    <div className="p-3 grid grid-cols-2 gap-1 max-md:grid-cols-1">
+                      {featureItems.map((item, index) => (
+                        <motion.button
+                          key={item.id}
+                          onClick={() => scrollToFeatureItem(item.id)}
+                          className="flex items-start gap-3 p-3 rounded-xl text-left hover:bg-[var(--color-bg-tertiary)] bg-transparent border-none cursor-pointer group"
+                          initial={{ opacity: 0, scale: 0.5, y: 20 }}
+                          animate={{ 
+                            opacity: 1, 
+                            scale: 1, 
+                            y: 0,
+                          }}
+                          exit={{ 
+                            opacity: 0, 
+                            scale: 0.5, 
+                            y: -10 
+                          }}
+                          transition={{ 
+                            delay: index * 0.05,
+                            duration: 0.4,
+                            type: "spring",
+                            stiffness: 400,
+                            damping: 25
+                          }}
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          <motion.div 
+                            className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 group-hover:shadow-lg"
+                            style={{ 
+                              backgroundColor: `${item.color}15`, 
+                              color: item.color,
+                              boxShadow: `0 0 0 1px ${item.color}30`
+                            }}
+                            initial={{ scale: 0, rotate: -180 }}
+                            animate={{ scale: 1, rotate: 0 }}
+                            transition={{ 
+                              delay: index * 0.05 + 0.1,
+                              duration: 0.5,
+                              type: "spring",
+                              stiffness: 300,
+                              damping: 20
+                            }}
+                            whileHover={{ scale: 1.15, rotate: 5 }}
+                          >
+                            <item.icon size={18} />
+                          </motion.div>
+                          <motion.div 
+                            className="flex flex-col gap-0.5 min-w-0"
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: index * 0.05 + 0.15, duration: 0.3 }}
+                          >
+                            <span className="text-sm font-medium text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] transition-colors truncate">
+                              {item.title}
+                            </span>
+                            <span className="text-xs text-[var(--color-text-muted)] leading-relaxed line-clamp-2">
+                              Explore this feature
+                            </span>
+                          </motion.div>
+                        </motion.button>
+                      ))}
+                    </div>
+                    
+                    {/* Footer */}
+                    <motion.div 
+                      className="px-5 py-3 border-t border-[var(--color-border)] bg-[var(--color-bg-tertiary)]/50 rounded-b-2xl"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.4, duration: 0.3 }}
+                    >
+                      <motion.button 
+                        onClick={() => scrollToSection('features')}
+                        className="text-xs font-medium text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] transition-colors bg-transparent border-none cursor-pointer"
+                        whileHover={{ x: 5 }}
+                      >
+                        View all features →
+                      </motion.button>
+                    </motion.div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
-          </div>
+          </MotionConfig>
 
           {/* Demo */}
           <button onClick={() => scrollToSection('demo')} className={getNavButtonClass('demo')}>

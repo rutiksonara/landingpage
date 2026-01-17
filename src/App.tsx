@@ -5,7 +5,6 @@ import Features from './components/Features';
 import ProductDemo from './components/ProductDemo';
 import Enterprise from './components/Enterprise';
 import Footer from './components/Footer';
-import AuthModal from './components/AuthModal';
 import './index.css';
 
 export default function App() {
@@ -23,15 +22,11 @@ export default function App() {
     }, 500);
   };
 
-  const scrollToDemo = () => {
-    document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' });
-  };
-
   return (
     <div className="app">
       <Header onAuthClick={handleGetStarted} />
       <main>
-        <Hero ref={heroRef} onDemoClick={scrollToDemo} />
+        <Hero ref={heroRef} onDemoClick={() => {}} />
         <Features />
         <ProductDemo />
         <Enterprise />
