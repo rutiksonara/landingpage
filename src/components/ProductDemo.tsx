@@ -36,7 +36,9 @@ export default function ProductDemo() {
   const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=${isPlaying ? 1 : 0}&mute=${isMuted ? 1 : 0}&loop=1&playlist=${videoId}&controls=0&modestbranding=1&rel=0`;
 
   return (
-    <section id="demo" className="section relative bg-[var(--color-bg-primary)] border-t border-[var(--color-border)]" ref={sectionRef}>
+    <>
+      <div id="product-tour" className="absolute -mt-16" />
+      <section id="demo" className="section relative bg-[var(--color-bg-primary)] border-t border-[var(--color-border)]" ref={sectionRef}>
       <div className="container">
         <div className="text-center max-w-[560px] mx-auto mb-16">
           <span className="inline-block text-xs font-semibold uppercase tracking-widest text-[var(--color-accent)] mb-4">Product Tour</span>
@@ -97,5 +99,6 @@ export default function ProductDemo() {
         </p>
       </div>
     </section>
+    </>
   );
 }

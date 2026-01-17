@@ -1,4 +1,4 @@
-import { useRef, useMemo, Suspense } from "react";
+import { useRef, useMemo, Suspense, useEffect, useCallback, type JSX } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import {
   OrbitControls,
@@ -349,23 +349,28 @@ function FeatureSection({ feature, index, progress }: FeatureSectionProps) {
   const sectionProgress = useMemo(() => {
     const sectionStart = index / features.length;
     const sectionEnd = (index + 1) / features.length;
+    const sectionRange = sectionEnd - sectionStart;
     const midPoint = (sectionStart + sectionEnd) / 2;
 
-    // Peak opacity at midpoint
+    // Extend the "in focus" zone - features stay fully visible for longer
+    const focusZone = sectionRange * 0.6; // 60% of section is in full focus
     const distanceFromMid = Math.abs(progress - midPoint);
-    const maxDistance = (sectionEnd - sectionStart) / 2;
-    const normalizedDistance = Math.min(distanceFromMid / maxDistance, 1);
+    
+    // Only start fading outside the focus zone
+    const fadeDistance = Math.max(0, distanceFromMid - focusZone / 2);
+    const maxFadeDistance = sectionRange / 2 - focusZone / 2;
+    const normalizedDistance = maxFadeDistance > 0 ? Math.min(fadeDistance / maxFadeDistance, 1) : 0;
 
     return {
-      opacity: 1 - normalizedDistance * 0.7,
-      scale: 1 - normalizedDistance * 0.1,
-      translateY: normalizedDistance * 30,
+      opacity: 1 - normalizedDistance * 0.5,
+      scale: 1 - normalizedDistance * 0.05,
+      translateY: normalizedDistance * 15,
     };
   }, [index, progress]);
 
   return (
     <div
-      className="min-h-screen flex items-center py-16 border-b border-[var(--color-border)] will-change-transform"
+      className="min-h-screen flex items-center py-16 will-change-transform"
       style={{
         opacity: sectionProgress.opacity,
         transform: `translateY(${sectionProgress.translateY}px) scale(${sectionProgress.scale})`,
@@ -418,7 +423,7 @@ export default function Features() {
   const scrollProgress = useRef(0);
 
   // Use requestAnimationFrame for buttery smooth scroll tracking
-  const handleScroll = () => {
+  const handleScroll = useCallback(() => {
     if (!containerRef.current) return;
 
     const container = containerRef.current;
@@ -433,36 +438,46 @@ export default function Features() {
     sections.forEach((section, index) => {
       const sectionStart = index / features.length;
       const sectionEnd = (index + 1) / features.length;
+      const sectionRange = sectionEnd - sectionStart;
       const midPoint = (sectionStart + sectionEnd) / 2;
 
+      // Extend the "in focus" zone - features stay fully visible for longer
+      const focusZone = sectionRange * 0.6;
       const distanceFromMid = Math.abs(scrollProgress.current - midPoint);
-      const maxDistance = (sectionEnd - sectionStart) / 2;
-      const normalizedDistance = Math.min(distanceFromMid / maxDistance, 1);
+      
+      const fadeDistance = Math.max(0, distanceFromMid - focusZone / 2);
+      const maxFadeDistance = sectionRange / 2 - focusZone / 2;
+      const normalizedDistance = maxFadeDistance > 0 ? Math.min(fadeDistance / maxFadeDistance, 1) : 0;
 
-      const opacity = 1 - normalizedDistance * 0.6;
+      const opacity = 1 - normalizedDistance * 0.5;
       const scale = 1 - normalizedDistance * 0.05;
-      const translateY = normalizedDistance * 20;
+      const translateY = normalizedDistance * 15;
 
       (section as HTMLElement).style.opacity = String(opacity);
       (section as HTMLElement).style.transform = `translateY(${translateY}px) scale(${scale})`;
     });
-  };
+  }, []);
 
   // Optimized scroll listener with requestAnimationFrame
-  const rafRef = useRef<number>();
+  const rafRef = useRef<number | undefined>(undefined);
 
-  const onScroll = () => {
+  const onScroll = useCallback(() => {
     if (rafRef.current) {
       cancelAnimationFrame(rafRef.current);
     }
     rafRef.current = requestAnimationFrame(handleScroll);
-  };
+  }, [handleScroll]);
 
-  // Mount scroll listener
-  if (typeof window !== 'undefined') {
-    window.removeEventListener("scroll", onScroll);
+  // Mount scroll listener in useEffect
+  useEffect(() => {
     window.addEventListener("scroll", onScroll, { passive: true });
-  }
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+      }
+    };
+  }, [onScroll]);
 
   return (
     <section id="features" className="bg-[var(--color-bg-primary)] overflow-hidden">
@@ -485,7 +500,7 @@ export default function Features() {
             key={feature.id}
             feature={feature}
             index={index}
-            progress={scrollProgress.current}
+            progress={0}
           />
         ))}
       </div>

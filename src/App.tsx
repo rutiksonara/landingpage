@@ -1,17 +1,27 @@
-import { useState } from 'react';
+import { useRef } from 'react';
 import Header from './components/Header';
-import Hero from './components/Hero';
+import Hero, { type HeroRef } from './components/Hero';
 import Features from './components/Features';
 import ProductDemo from './components/ProductDemo';
+import Enterprise from './components/Enterprise';
 import Footer from './components/Footer';
 import AuthModal from './components/AuthModal';
 import './index.css';
 
 export default function App() {
-  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const heroRef = useRef<HeroRef>(null);
 
-  const handleAuthClick = () => setIsAuthOpen(true);
-  const handleAuthClose = () => setIsAuthOpen(false);
+  const handleGetStarted = () => {
+    // Scroll to hero section and focus email input
+    const heroSection = document.getElementById('hero');
+    if (heroSection) {
+      heroSection.scrollIntoView({ behavior: 'smooth' });
+    }
+    // Focus email input after scroll animation
+    setTimeout(() => {
+      heroRef.current?.focusEmailInput();
+    }, 500);
+  };
 
   const scrollToDemo = () => {
     document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' });
@@ -19,14 +29,15 @@ export default function App() {
 
   return (
     <div className="app">
-      <Header onAuthClick={handleAuthClick} />
+      <Header onAuthClick={handleGetStarted} />
       <main>
-        <Hero onAuthClick={handleAuthClick} onDemoClick={scrollToDemo} />
+        <Hero ref={heroRef} onDemoClick={scrollToDemo} />
         <Features />
         <ProductDemo />
+        <Enterprise />
       </main>
       <Footer />
-      <AuthModal isOpen={isAuthOpen} onClose={handleAuthClose} />
+      {/* AuthModal removed - signup now happens inline in Hero */}
     </div>
   );
 }
