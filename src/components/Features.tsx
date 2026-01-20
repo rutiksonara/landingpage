@@ -355,18 +355,18 @@ function FeatureSection({ feature, index, progress }: FeatureSectionProps) {
 
     // Extend the "in focus" zone - features stay fully visible for longer
     const focusZone = sectionRange * 0.6; // 60% of section is in full focus
-    
+
     // For the last feature, keep it in full focus when scrolled to the bottom
     let distanceFromMid: number;
     if (isLastFeature && progress >= sectionStart) {
       // Last feature stays in focus once we've scrolled into its section
-      distanceFromMid = progress < midPoint 
-        ? midPoint - progress 
+      distanceFromMid = progress < midPoint
+        ? midPoint - progress
         : 0; // Don't fade when past midpoint (scrolled to bottom)
     } else {
       distanceFromMid = Math.abs(progress - midPoint);
     }
-    
+
     // Only start fading outside the focus zone
     const fadeDistance = Math.max(0, distanceFromMid - focusZone / 2);
     const maxFadeDistance = sectionRange / 2 - focusZone / 2;
@@ -455,18 +455,18 @@ export default function Features() {
 
       // Extend the "in focus" zone - features stay fully visible for longer
       const focusZone = sectionRange * 0.6;
-      
+
       // For the last feature, keep it in full focus when scrolled to the bottom
       let distanceFromMid: number;
       if (isLastFeature && scrollProgress.current >= sectionStart) {
         // Last feature stays in focus once we've scrolled into its section
-        distanceFromMid = scrollProgress.current < midPoint 
-          ? midPoint - scrollProgress.current 
+        distanceFromMid = scrollProgress.current < midPoint
+          ? midPoint - scrollProgress.current
           : 0; // Don't fade when past midpoint (scrolled to bottom)
       } else {
         distanceFromMid = Math.abs(scrollProgress.current - midPoint);
       }
-      
+
       const fadeDistance = Math.max(0, distanceFromMid - focusZone / 2);
       const maxFadeDistance = sectionRange / 2 - focusZone / 2;
       const normalizedDistance = maxFadeDistance > 0 ? Math.min(fadeDistance / maxFadeDistance, 1) : 0;
@@ -502,7 +502,7 @@ export default function Features() {
   }, [onScroll]);
 
   return (
-    <section id="features" className="bg-[var(--color-bg-primary)] overflow-hidden">
+    <section id="features" className="overflow-hidden">
       <div className="py-20 pb-8 text-center border-t border-[var(--color-border)]">
         <div className="container">
           <span className="inline-block text-xs font-semibold uppercase tracking-widest text-[var(--color-accent)] mb-4">

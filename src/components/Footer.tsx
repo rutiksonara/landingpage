@@ -1,15 +1,22 @@
 import { Github, Twitter, Linkedin, Mail } from 'lucide-react';
+import Footer3D from './Footer3D';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer id="about" className="bg-[var(--color-bg-primary)] border-t border-[var(--color-border)] py-24 pb-8">
-      <div className="container">
+    <footer id="about" className="border-t border-[var(--color-border)]">
+      {/* 3D CLOUDAICAD Section */}
+      <div className="py-16">
+        <Footer3D />
+      </div>
+
+      {/* Links and Info Section */}
+      <div className="container py-12 border-t border-[var(--color-border)]">
         <div className="grid grid-cols-[2fr_1fr_1fr_1fr] gap-16 mb-16 max-md:grid-cols-2 max-md:gap-12 max-sm:grid-cols-1">
           <div className="max-md:col-span-2 max-sm:col-span-1">
             <div className="text-lg font-semibold tracking-tight mb-2">
-              Cloud<span className="text-[var(--color-accent)]">Cad</span>AI
+              Cloud<span className="text-[var(--color-accent)]">AI</span>Cad
             </div>
             <p className="text-sm max-w-[260px] mb-6 text-[var(--color-text-secondary)]">
               AI-powered PLM platform for rapid prototyping and accelerated product development.
@@ -55,9 +62,12 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="pt-6 border-t border-[var(--color-border)]">
-          <p className="text-[13px] text-[var(--color-text-muted)] text-center">
-            © {currentYear} CloudCadAI. All rights reserved.
+        <div className="pt-6 border-t border-[var(--color-border)] flex justify-between items-center max-sm:flex-col max-sm:gap-4">
+          <p className="text-[13px] text-[var(--color-text-muted)]">
+            © {currentYear} CloudAICad. All rights reserved.
+          </p>
+          <p className="text-[11px] text-[var(--color-text-muted)] font-mono">
+            v1.0.0 REV A
           </p>
         </div>
       </div>
